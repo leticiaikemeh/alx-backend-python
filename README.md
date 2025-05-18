@@ -1,5 +1,4 @@
 # alx-backend-python
-Here is a clean and properly formatted version of your `README.md` using standard Markdown best practices:
 
 ```markdown
 # 🐍 Python Generators for Streaming MySQL Rows
