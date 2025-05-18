@@ -14,8 +14,10 @@ This project demonstrates how to use **Python generators** to efficiently stream
 ```
 
 python-generators-0x00/
+
 ├── seed.py             # Database setup and streaming implementation
-└── user\_data.csv       # Sample data file (not included in this repo)
+
+└── user_data.csv       # Sample data file (not included in this repo)
 
 ````
 
@@ -87,7 +89,7 @@ The `user_data` table has the following structure:
 
 | Column   | Type          | Constraints        |
 | -------- | ------------- | ------------------ |
-| user\_id | VARCHAR(36)   | PRIMARY KEY, INDEX |
+| user_id | VARCHAR(36)   | PRIMARY KEY, INDEX |
 | name     | VARCHAR(255)  | NOT NULL           |
 | email    | VARCHAR(255)  | NOT NULL           |
 | age      | DECIMAL(10,0) | NOT NULL           |
