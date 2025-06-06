@@ -18,8 +18,15 @@ class MessageSerializer(serializers.ModelSerializer):
         model = Message
         fields = [
             'message_id', 'sender', 'conversation',
-            'content', 'timestamp'
+            'message_body', 'sent_at'
         ]
+
+    def validate_message_body(self, value):
+        if len(self.value) == 0:
+            raise serializers.ValidationError(
+                    'You cannot send an empty message'
+                    )
+        return value
 
 
 class ConversationSerializer(serializers.ModelSerializer):
@@ -32,3 +39,6 @@ class ConversationSerializer(serializers.ModelSerializer):
             'conversation_id', 'participants',
             'messages', 'created_at'
         ]
+
+    def get_total_messages(self, obj):
+        return obj.messages.count()

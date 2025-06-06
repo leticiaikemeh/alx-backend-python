@@ -77,8 +77,8 @@ class Message(models.Model):
         on_delete=models.CASCADE,
         related_name='messages'
     )
-    content = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
+    message_body = models.TextField()
+    sent_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Message ({self.sender.username} - {self.content[:30]})"
