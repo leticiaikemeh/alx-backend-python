@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, status, filters
 from .models import CustomUser, Message, Conversation
 from .serializers import CustomUserSerializer, MessageSerializer, ConversationSerializer
 
@@ -17,4 +17,3 @@ class MessageViewSet(viewsets.ModelViewSet):
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
-
