@@ -1,19 +1,30 @@
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets, status, filters
-from .models import CustomUser, Message, Conversation
-from .serializers import CustomUserSerializer, MessageSerializer, ConversationSerializer
+from django.http import HttpResponse
+from .models import User, Conversation, Message
+from .serializers import ConversationSerializer, MessageSerializer
+from .permissions import IsParticipantOfConversation
 
 
-class CustomUserViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
+# Create your views here.
 
-class MessageViewSet(viewsets.ModelViewSet):
-    queryset = Message.objects.all()
-    serializer_class = MessageSerializer
+@api_view(['GET'])
+def home(request):
+    """ """
+    return HttpResponse('<h1>Home Page</h1>')
 
-    def perform_create(self, serializer):
-        serializer.save(sender=self.request.user)
 
 class ConversationViewSet(viewsets.ModelViewSet):
-    queryset = Conversation.objects.all()
+    permission_classes = [IsAuthenticated, IsParticipantOfConversation]
     serializer_class = ConversationSerializer
+
+    def get_queryset(self):
+        return Conversation.objects.filter(participants=self.request.user)
+
+
+class MessageViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
