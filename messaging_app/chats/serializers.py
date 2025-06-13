@@ -1,65 +1,60 @@
-#!/usr/bin/python3
-
-"""
-
-"""
-
 from rest_framework import serializers
-from .models import User, Message, Conversation
+from .models import CustomUser, Conversation, Message
+from django.contrib.auth.hashers import make_password
 
 
-class UserSerializer(serializers.ModelSerializer):
-    """ serialize the User class """
-
+class CustomUserSerializer(serializers.ModelSerializer):
+    username = serializers.CharField()
+    email = serializers.CharField()
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+        min_length=8,
+        style={"input_type": "password"}
+    )
     class Meta:
-        model = User
-        fields = (
-                'user_id',
-                'first_name',
-                'last_name',
-                'phone_number',
-            )
+        model = CustomUser
+        fields = [
+            'id', 'email', 'username', 'first_name',
+            'last_name', 'phone_number', 'created_at'
+        ]
+    
+    def create(self, validated_data):
+        # Hash the password
+        validated_data['password'] = make_password(validated_data['password'])
+        return super().create(validated_data)
 
-
-
-class MessageSerializer(serializers.ModelSerializer):
-    """ serialize the Message class """
-
-    sender = UserSerializer()
-
-    class Meta:
-        model = Message
-        fields = (
-                'message_id',
-                'sender',
-                'message_body',
-                'sent_at',
-                'created_at'
-            )
-
-    def validate_message_body(self, value):
-        if len(self.value) == 0:
-            raise serializers.ValidationError(
-                    'You cannot send an empty message'
-                    )
+    def validate_email(self, value):
+        if CustomUser.objects.filter(email=value).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
         return value
 
 
+class MessageSerializer(serializers.ModelSerializer):
+    sender = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    conversation = serializers.PrimaryKeyRelatedField(
+        queryset=Conversation.objects.all()
+    )
+
+    class Meta:
+        model = Message
+        fields = [
+            'message_id', 'sender', 'conversation',
+            'message_body', 'sent_at'
+        ]
+
+
 class ConversationSerializer(serializers.ModelSerializer):
-    """ serialize the Conversation class """
-    
+    participants = CustomUserSerializer(many=True, read_only=True)
     messages = MessageSerializer(many=True, read_only=True)
     total_messages = serializers.SerializerMethodField()
 
-    def get_total_messages(self, obj):
-        return obj.messages.count()
-
-
     class Meta:
         model = Conversation
-        fields = (
-                'conversation_id',
-                'created_at',
-                'messages',
-                'total_messages',
-            )
+        fields = [
+            'conversation_id', 'participants',
+            'messages', 'total_messages', 'created_at'
+        ]
+
+    def get_total_messages(self, obj):
+        return obj.messages.count()
