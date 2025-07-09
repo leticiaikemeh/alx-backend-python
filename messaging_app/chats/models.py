@@ -42,6 +42,9 @@ class CustomUser(AbstractUser):
         )
     created_at = models.DateTimeField(default=timezone.now)
 
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
+
     def __str__(self):
         return f"{self.id} {self.email})"
 
@@ -81,4 +84,4 @@ class Message(models.Model):
     sent_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Message ({self.sender.username} - {self.content[:30]})"
+        return f"Message ({self.sender.username} - {self.message_body[:30]})"
