@@ -1,29 +1,19 @@
-pipeline {
-    agent any
-
-    stages {
-        stage('Checkout code') {
-            steps {
-                git branch: 'main', credentialsId: 'bce871e4-3bfd-4ea5-bf52-e9f8cd024735', url: 'https://github.com/leticiaikemeh/alx-backend-python.git'
+node {
+    stage('Checkout code') {
+        git branch: 'main',
+            credentialsId: 'bce871e4-3bfd-4ea5-bf52-e9f8cd024735',
+            url: 'https://github.com/leticiaikemeh/alx-backend-python.git'
+    }
+    stage('Install dependencies & Run tests') {
+        dir('messaging_app') {
+            withPythonEnv('python3') {
+                sh 'pip install --upgrade pip'
+                sh 'pip install -r requirements.txt'
+                sh 'pytest --junitxml=test-results.xml'
             }
         }
-        stage('Install dependencies & Run tests') {
-            steps {
-                dir('messaging_app') {
-                    // This block sets up a fresh Python 3 virtualenv using ShiningPanda
-                    withPythonEnv('python3') {
-                        sh 'pip install --upgrade pip'
-                        sh 'pip install -r requirements.txt'
-                        sh 'pytest --junitxml=test-results.xml'
-                    }
-                }
-            }
-            post {
-                always {
-                    // Path is relative to workspace root, so include 'messaging_app/'
-                    junit 'messaging_app/test-results.xml'
-                }
-            }
-        }
+    }
+    stage('Publish test results') {
+        junit 'messaging_app/test-results.xml'
     }
 }
