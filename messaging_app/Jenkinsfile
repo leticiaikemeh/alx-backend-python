@@ -7,18 +7,25 @@ pipeline {
                 git branch: 'main', credentialsId: 'bce871e4-3bfd-4ea5-bf52-e9f8cd024735', url: 'https://github.com/leticiaikemeh/alx-backend-python.git'
             }
         }
-        stage('Install dependencies') {
+        stage('Set up venv & Install dependencies') {
             steps {
                 dir('messaging_app') {
-                    sh 'pip3 install --upgrade pip'
-                    sh 'pip3 install -r requirements.txt'
+                    sh '''
+                        python3 -m venv venv
+                        . venv/bin/activate
+                        pip install --upgrade pip
+                        pip install -r requirements.txt
+                    '''
                 }
             }
         }
         stage('Run tests') {
             steps {
                 dir('messaging_app') {
-                    sh 'python3 -m pytest --junitxml=test-results.xml'
+                    sh '''
+                        . venv/bin/activate
+                        pytest --junitxml=test-results.xml
+                    '''
                 }
             }
             post {
