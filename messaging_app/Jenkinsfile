@@ -7,21 +7,20 @@ pipeline {
                 git branch: 'main', credentialsId: 'bce871e4-3bfd-4ea5-bf52-e9f8cd024735', url: 'https://github.com/leticiaikemeh/alx-backend-python.git'
             }
         }
-        stage('Install dependencies') {
+        stage('Install dependencies & Run tests') {
             steps {
                 dir('messaging_app') {
-                    sh 'pip install -r requirements.txt'
-                }
-            }
-        }
-        stage('Run tests') {
-            steps {
-                dir('messaging_app') {
-                    sh 'pytest --junitxml=test-results.xml'
+                    // This block sets up a fresh Python 3 virtualenv using ShiningPanda
+                    withPythonEnv('python3') {
+                        sh 'pip install --upgrade pip'
+                        sh 'pip install -r requirements.txt'
+                        sh 'pytest --junitxml=test-results.xml'
+                    }
                 }
             }
             post {
                 always {
+                    // Path is relative to workspace root, so include 'messaging_app/'
                     junit 'messaging_app/test-results.xml'
                 }
             }
